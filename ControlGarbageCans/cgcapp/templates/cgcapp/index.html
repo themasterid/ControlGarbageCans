@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<style type="text/css">
+.container {
+  margin: 2rem auto;
+  max-width: 50rem;
+  text-align: center;
+}
+
+form {
+  margin: 2.5rem auto;
+}
+
+.find-me.btn {
+  font-family: inherit;
+}
+
+.find-me.btn,
+.not-on-https,
+.no-geolocation-support,
+.coordinates {
+  font-size: 1.5em;
+}
+
+.not-on-https,
+.no-geolocation-support {
+  display: none;
+}
+
+.coordinates {
+  display: none;
+  margin-bottom: 2.5rem;
+}
+
+.visible {
+  display: block;
+}
+
+#map {
+  margin: 0 auto;
+  position: relative;
+}
+
+#map-canvas {
+  height: 25rem;
+  min-height: 25rem;
+  width: 100%;
+}
+</style>
+
+<body>
+
+<div class="card">
+  <div class="card-header">Тут в динамике адрес по которому находится группа контейнеров и координаты.</div>
+  <div class="card-body">
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="inputGroupSelect01">Состояние контейнера</label>
+      <select class="form-select" id="inputGroupSelect01">
+        <option selected>-Выбрать-</option>
+        <option value="1">На месте</option>
+        <option value="2">Отсутствует</option>
+        <option value="3">Поврежден</option>
+        <option value="4">Похишен рептилойдами</option>
+      </select>
+    </div>
+    <hr>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">Осмотрен</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">Перемещен в другое место</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">Отправлен на списание</label>
+    </div>
+    <hr>
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="inputGroupSelect01">Куда перемещен</label>
+      <select class="form-select" id="inputGroupSelect01">
+        <option selected>-Выбрать-</option>
+        <option value="1">Любирцы</option>
+        <option value="2">Голубцы</option>
+        <option value="3">ст. метро им. Н. А. Назарбаева</option>
+        <option value="4">Еще куча мест, можно искать через поиск</option>
+      </select>
+    </div>
+    <hr>
+    <div class="input-group mb-3">
+      <input type="file" class="form-control" id="inputGroupFile02">
+      <label class="input-group-text" for="inputGroupFile02">Загрузить</label>
+    </div>
+    <hr>
+    <button type="button" class="btn btn-outline-info w3-btn w3-blue w3-round" onclick="getLocation1()">Координаты</button>
+    <button type="button" class="btn btn-outline-info w3-btn w3-blue w3-round" onclick="getLocation()">Карта</button>
+    <button type="button" class="btn btn-outline-info w3-btn w3-blue w3-round" onclick="">Записать</button>
+    <p id="demo"></p>
+    <p id="demo1"></p>
+
+    <table class="table-responsive table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Дом</th>
+          <th scope="col">Улица</th>
+          <th scope="col">Микрорайон</th>
+          <th scope="col">Город</th>
+          <th scope="col">ГА Город</th>
+          <th scope="col">Район</th>
+          <th scope="col">Область</th>
+          <th scope="col">Индекс</th>
+          <th scope="col">Страна</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in address %}
+          <td>{{ item }}</td>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+<script>
+var x = document.getElementById("demo");
+
+function getLocation1() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition1);
+  } else {
+    x.innerHTML = "Геолокация не поддерживается этим браузером.";
+  }
+}
+
+function showPosition1(position) {
+  x.innerHTML = "Широта: " + "<strong>" + position.coords.latitude + "</strong>" +
+  " | Долгота: " + "<strong>" + position.coords.longitude + "</strong>";
+}
+</script>
+
+    <div id="mapholder"></div>
+    <script src="https://maps.google.com/maps/api/js?key=AIzaSyAWyCb1Xq7gDRWSWRnOAVF3VsBz9TQW-og"></script>
+    <script>
+      var x=document.getElementById("demo1");
+      function getLocation()
+        {
+        if (navigator.geolocation)
+          {
+          navigator.geolocation.getCurrentPosition(showPosition,showError);
+          }
+        else{x.innerHTML="Geolocation is not supported by this browser.";}
+        }
+
+      function showPosition(position)
+        {
+        var lat=position.coords.latitude;
+        var lon=position.coords.longitude;
+        var latlon=new google.maps.LatLng(lat, lon)
+        var mapholder=document.getElementById('mapholder')
+        mapholder.style.height='250px';
+        mapholder.style.width='100%';
+
+        var myOptions={
+        center:latlon,zoom:14,
+        mapTypeId:google.maps.MapTypeId.ROADMAP,
+        mapTypeControl:false,
+        navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+        };
+        var map=new google.maps.Map(document.getElementById("mapholder"),myOptions);
+        var marker=new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+        }
+
+      function showError(error)
+        {
+        switch(error.code)
+          {
+          case error.PERMISSION_DENIED:
+            x.innerHTML="User denied the request for Geolocation."
+            break;
+          case error.POSITION_UNAVAILABLE:
+            x.innerHTML="Location information is unavailable."
+            break;
+          case error.TIMEOUT:
+            x.innerHTML="The request to get user location timed out."
+            break;
+          case error.UNKNOWN_ERROR:
+            x.innerHTML="An unknown error occurred."
+            break;
+          }
+        }
+      </script>
+</div>
+{% endblock %}
